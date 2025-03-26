@@ -1,3 +1,17 @@
+*.csv
+*.xlsx
+*.png
+*.gexf
+*.pb
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.mat
+*.ods
+*.pkl
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
