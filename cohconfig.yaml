@@ -1,0 +1,44 @@
+# statistics that analyse in the frequency-domain (see Schoegl and Supp, 2006)
+.statistics.spectral:
+  CoherenceMagnitude:
+    labels:
+      - undirected
+      - linear
+      - unsigned
+      - bivariate
+      - frequency-dependent
+    dependencies:
+    configs:
+      - fs: 1
+
+      # delta
+      - fmin: 0.00048828125
+        fmax: 0.001953125
+
+      # Theta
+      - fmin: 0.001953125
+        fmax: 0.00390625
+
+      # Alpha
+      - fmin: 0.00390625
+        fmax: 0.005859375
+
+      # Beta
+      - fmin: 0.005859375
+        fmax: 0.0146484375
+
+      # Low Gamma
+      - fmin: 0.0146484375
+        fmax: 0.0341796875
+
+      # High Gamma
+      - fmin: 0.0341796875
+        fmax: 0.0732421875
+
+       # Ultra High Gamma
+      - fmin: 0.0732421875
+        fmax: 0.1220703125
+
+      # Full Band (sans dc and up to ~noise)
+      - fmin: 0.00048828125
+        fmax: 0.1220703125

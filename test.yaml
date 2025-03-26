@@ -1,0 +1,14 @@
+.statistics.infotheory:
+  JointEntropy: # No theiler window yet
+    labels:
+      - undirected
+      - nonlinear
+      - unsigned
+      - bivariate
+      - contemporaneous
+    dependencies: 
+      - java
+    configs:
+      - estimator: gaussian
+      - estimator: kozachenko
+      - estimator: kernel
