@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- If running python always use conda environment networks (conda activate networks)
+- before correcting or changing anything automatically generate a new github commit and fill it out with current canges and planned changes/what is being addressed. Keep it summarized and succinct.

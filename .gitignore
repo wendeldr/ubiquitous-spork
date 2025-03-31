@@ -186,3 +186,29 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# PyTorch Lightning
+lightning_logs/
+lightning_runs/
+*.ckpt
+checkpoints/
+models/
+wandb/
+runs/
+logs/
+*.log
+tensorboard/
+events.out.tfevents.*
+*.pt
+*.pth
+*.bin
+*.onnx
+*.torchscript
+*.mlmodel
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.mat
+*.ods
+*.pkl
