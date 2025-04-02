@@ -28,86 +28,24 @@ from torchmetrics.classification import (
 )
 
 from torch.utils.data import TensorDataset, DataLoader
-
-def attention_fakedata():
-    rng = np.random.default_rng(42)
-    ratio = 11.0
-
-    # Generate synthetic data with 
-    n_samples = 100000
-    n_pos = int(n_samples / (ratio + 1))  # Calculate number of positive samples
-    n_neg = n_samples - n_pos  # Remaining are negative samples
-
-    # Create labels array with the correct ratio
-    labels = np.concatenate([np.zeros(n_neg), np.ones(n_pos)])
-
-    # Shuffle the labels
-    rng.shuffle(labels)
-
-    # Create a DataFrame with the synthetic data
-    raw_df = pd.DataFrame({'label': labels})
-
-    # Using boolean indexing:
-    mask0 = raw_df['label'] == 0
-    mask1 = raw_df['label'] == 1
-
-    raw_df.loc[mask0, 'f1'] = rng.normal(6, 0.3, size=mask0.sum())
-    raw_df.loc[mask1, 'f1'] = rng.gamma(1, .11, size=mask1.sum())
-
-
-    raw_df['f2'] = rng.normal(10, 5, size=n_samples)
-    # raw_df['f3'] = rng.poisson(lam=3, size=n_samples)
-
-    # # plot features on one 1,3 plot grouped by label
-    # fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-    # # Plot feature 1 distributions
-    # sns.histplot(data=raw_df, hue='label', x='f1', ax=axes[0])
-    # axes[0].set_title('Feature 1 Distribution by SOZ')
-    # axes[0].set_xlabel('SOZ')
-    # axes[0].set_ylabel('Value')
-
-    # # Plot feature 2 distributions  
-    # sns.histplot(data=raw_df, hue='label', x='f2', ax=axes[1])
-    # axes[1].set_title('Feature 2 Distribution by SOZ')
-    # axes[1].set_xlabel('SOZ')
-    # axes[1].set_ylabel('Value')
-
-    # # Plot feature 3 distributions
-    # sns.histplot(data=raw_df, hue='label', x='f3', ax=axes[2])
-    # axes[2].set_title('Feature 3 Distribution by SOZ')
-    # axes[2].set_xlabel('SOZ')
-    # axes[2].set_ylabel('Value')
-
-    # plt.tight_layout()
-    # plt.show()
-
-    neg, pos = np.bincount(raw_df['label'])
-    total = neg + pos
-    print('Examples:\n    Total: {}\n    Positive: {} ({:.2f}% of total)\n'.format(
-        total, pos, 100 * pos / total))
-
-    initial_bias = np.log([pos/neg])
-
-    print('data shape (+1 for label)')
-    print(raw_df.shape)
-    return raw_df,initial_bias
+from data_generation import prepare_data
 
 class SelfAttentionLightning(pl.LightningModule):
-    def __init__(self, N_value, projection_dim=3, learning_rate=1e-3):
+    def __init__(self, N_value, projection_dim=1, learning_rate=1e-3):
         super(SelfAttentionLightning, self).__init__()
         self.save_hyperparameters()
         self.N_value = N_value
         self.learning_rate = learning_rate
         
         # Model layers
-        self.proj_keys = nn.Linear(1, projection_dim)
-        self.proj_queries = nn.Linear(1, projection_dim)
-        self.proj_values = nn.Linear(1, projection_dim)
+        # self.proj_keys = nn.Linear(1, projection_dim)
+        # self.proj_queries = nn.Linear(1, projection_dim)
+        # self.proj_values = nn.Linear(1, projection_dim)
         self.attn = nn.MultiheadAttention(embed_dim=projection_dim, num_heads=1, batch_first=True)
         self.ln = nn.LayerNorm(N_value * projection_dim)
-        self.fc1 = nn.Linear(N_value * projection_dim, 4 * N_value)
-        self.fc2 = nn.Linear(4 * N_value, 1)
+        # self.fc1 = nn.Linear(N_value * projection_dim, 4 * N_value)
+        # self.fc2 = nn.Linear(4 * N_value, 1)
+        self.fc1 = nn.Linear(N_value * projection_dim, 1)
         
         # Loss function
         self.criterion = nn.BCELoss()
@@ -131,17 +69,45 @@ class SelfAttentionLightning(pl.LightningModule):
         self.val_metrics = metrics.clone(prefix='val/')
 
     def forward(self, x):
+        # x = x.unsqueeze(-1)
+        # keys = self.proj_keys(x)
+        # queries = self.proj_queries(x)
+        # values = self.proj_values(x)
+        # attn_output, attn_weights = self.attn(queries, keys, values)
+        # x = attn_output.reshape(attn_output.size(0), -1)
+        # x = self.ln(x)
+        # x = F.relu(self.fc1(x))
+        # x = self.fc2(x)
+        # x = torch.sigmoid(x)
+
         x = x.unsqueeze(-1)
-        keys = self.proj_keys(x)
-        queries = self.proj_queries(x)
-        values = self.proj_values(x)
-        attn_output, attn_weights = self.attn(queries, keys, values)
+        attn_output, attn_weights = self.attn(x, x, x)
         x = attn_output.reshape(attn_output.size(0), -1)
         x = self.ln(x)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        x = torch.sigmoid(x)
+        x = torch.sigmoid(self.fc1(x))
         return x, attn_weights
+
+    def forward_outputs(self, x):
+        # x = x.unsqueeze(-1)
+        # keys = self.proj_keys(x)
+        # queries = self.proj_queries(x)
+        # values = self.proj_values(x)
+        # attn_output, attn_weights = self.attn(queries, keys, values)
+        # ln_input = attn_output.reshape(attn_output.size(0), -1)
+        # ln_output = self.ln(ln_input)
+        # fc1_output = F.relu(self.fc1(ln_output))
+        # fc2_output = self.fc2(fc1_output)
+        # out = torch.sigmoid(fc2_output)
+        # return x, keys, queries, values, attn_output, attn_weights, ln_input, ln_output, fc1_output, fc2_output, out
+
+        x = x.unsqueeze(-1)
+        attn_output, attn_weights = self.attn(x, x, x)
+        ln_input = attn_output.reshape(attn_output.size(0), -1)
+        ln_output = self.ln(ln_input)
+        fc1_output = self.fc1(ln_output)
+        out = torch.sigmoid(fc1_output)
+        return x, attn_output, attn_weights, ln_input, ln_output, fc1_output, out
+
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -212,45 +178,9 @@ class SelfAttentionLightning(pl.LightningModule):
         self.val_metrics.reset()
         self.val_binary_stats.reset()
 
-# Data preparation and training
-def prepare_data():
-    raw_df, initial_bias = attention_fakedata()
-    
-    # Split dataset
-    train_df, test_df = train_test_split(raw_df, test_size=0.2)
-    train_df, val_df = train_test_split(train_df, test_size=0.2)
-    
-    # Prepare labels and features
-    train_labels = np.array(train_df.pop('label')).reshape(-1, 1)
-    val_labels = np.array(val_df.pop('label')).reshape(-1, 1)
-    test_labels = np.array(test_df.pop('label')).reshape(-1, 1)
-    
-    train_features = np.array(train_df)
-    val_features = np.array(val_df)
-    test_features = np.array(test_df)
-    
-    # Scale features
-    scaler = StandardScaler()
-    train_features = scaler.fit_transform(train_features)
-    val_features = scaler.transform(val_features)
-    test_features = scaler.transform(test_features)
-    
-    # Convert to tensors
-    train_features_tensor = torch.tensor(train_features, dtype=torch.float32)
-    train_labels_tensor = torch.tensor(train_labels, dtype=torch.float32)
-    
-    val_features_tensor = torch.tensor(val_features, dtype=torch.float32)
-    val_labels_tensor = torch.tensor(val_labels, dtype=torch.float32)
-    
-    # Create datasets
-    train_dataset = TensorDataset(train_features_tensor, train_labels_tensor)
-    val_dataset = TensorDataset(val_features_tensor, val_labels_tensor)
-    
-    return train_dataset, val_dataset, train_features.shape[1]
-
 def main():
     # Prepare data
-    train_dataset, val_dataset, n_features = prepare_data()
+    train_dataset, val_dataset, n_features = prepare_data(quantize=True,quantization_decimals=2)
     
     # Create data loaders with workers
     num_workers = min(63, os.cpu_count() or 1)  # Follow Lightning's suggestion but cap at CPU count
@@ -274,7 +204,7 @@ def main():
     
     # Create unique timestamp for model saving
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    model_save_path = f"/media/dan/Data/git/ubiquitous-spork/prediction/models/attention_model_{timestamp}"
+    model_save_path = f"/media/dan/Data/git/ubiquitous-spork/prediction/src/models/quantized_attention_model_{timestamp}"
     
     # Early stopping callback
     early_stopping = pl.callbacks.EarlyStopping(
@@ -322,4 +252,5 @@ def main():
     return model, trainer
 
 if __name__ == "__main__":
-    model, trainer = main()
+    for i in range(10):
+        model, trainer = main()
