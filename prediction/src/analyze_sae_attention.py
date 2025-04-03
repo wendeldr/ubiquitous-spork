@@ -6,7 +6,7 @@ import seaborn as sns
 from sae_fakedata import SparseAutoEncoder
 import os
 from data_generation import prepare_data
-from trainAttn_fakedata import SelfAttentionLightning
+from models.self_attention_lightning import SelfAttentionLightning
 
 def load_sae_and_shape(sae_dir, name):
     """

@@ -192,7 +192,7 @@ lightning_logs/
 lightning_runs/
 *.ckpt
 checkpoints/
-models/
+models/outputs/
 wandb/
 runs/
 logs/

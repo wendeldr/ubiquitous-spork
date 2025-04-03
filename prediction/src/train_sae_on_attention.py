@@ -7,7 +7,7 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 import einops
 import os
 import datetime
-from trainAttn_fakedata import SelfAttentionLightning
+from models.self_attention_lightning import SelfAttentionLightning
 from data_generation import prepare_data
 from sae_fakedata import SparseAutoEncoder, calculate_loss
 
