@@ -7,4 +7,5 @@ alwaysApply: true
 # Your rule content
 
 - If running python always use conda environment networks (conda activate networks)
-- before correcting or changing anything automatically generate a new github commit and fill it out with current canges and planned changes/what is being addressed. Keep it summarized and succinct.
+- Before correcting or changing anything automatically generate a new github commit and fill it out with current canges and planned changes/what is being addressed. Keep it summarized and succinct.
+- If trying to insert/update a *.ipynb file just return the python code for me to paste and do not run anything. Do not return jupyter code

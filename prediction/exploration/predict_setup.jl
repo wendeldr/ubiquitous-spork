@@ -3,7 +3,7 @@ using Base.Threads
 
 
 # Load metadata
-metadata_df = CSV.read("/media/dan/Data/FULL_composite_patient_info.csv", DataFrame)
+metadata_df = CSV.read("/media/dan/Data/data/FULL_composite_patient_info.csv", DataFrame)
 
 # Process electrode data files
 function process_electrodes(metadata_df)
@@ -55,7 +55,8 @@ function process_calculations(new_df, base, subdirs)
     end
     
     results = []
-    @showprogress desc="Processing files..." Threads.@threads for i in 1:length(all_files)
+    # @showprogress desc="Processing files..." Threads.@threads for i in 1:length(all_files)
+    @showprogress desc="Processing files..." Threads.@threads for i in eachindex(all_files)
         f = all_files[i]
         # println(f)
 
@@ -199,20 +200,124 @@ function main()
     # Define base path and subdirectories
     base = "/media/dan/Data/data/connectivity/downloads-dump/BCT/outputs"
 
-    subdirs = ["cohmag_multitaper_mean_fs-1_fmin-0_fmax-0-5",
-    "cov_EmpiricalCovariance",
-    "pdist_cosine",
-    "mi_gaussian"]
+    # subdirs = ["cohmag_multitaper_mean_fs-1_fmin-0_fmax-0-5",
+    # "cov_EmpiricalCovariance",
+    # "pdist_cosine",
+    # "mi_gaussian"]
+
+    subdirs = [
+        "bary-sq_euclidean_max",
+        "bary-sq_euclidean_mean",
+        "bary_euclidean_max",
+        "ce_gaussian",
+        "cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00195",
+        "cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0342",
+        "cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-122",
+        "cohmag_multitaper_mean_fs-1_fmin-0-00195_fmax-0-00391",
+        "cohmag_multitaper_mean_fs-1_fmin-0-00391_fmax-0-00586",
+        "cohmag_multitaper_mean_fs-1_fmin-0-00586_fmax-0-0146",
+        "cohmag_multitaper_mean_fs-1_fmin-0-0146_fmax-0-0342",
+        "cohmag_multitaper_mean_fs-1_fmin-0-0342_fmax-0-0732",
+        "cohmag_multitaper_mean_fs-1_fmin-0-0342_fmax-0-122",
+        "cohmag_multitaper_mean_fs-1_fmin-0-0732_fmax-0-122",
+        "cohmag_multitaper_mean_fs-1_fmin-0_fmax-0-5",
+        "cov-sq_EmpiricalCovariance",
+        "cov-sq_GraphicalLassoCV",
+        "cov-sq_LedoitWolf",
+        "cov-sq_MinCovDet",
+        "cov-sq_OAS",
+        "cov-sq_ShrunkCovariance",
+        "cov_EmpiricalCovariance",
+        "cov_GraphicalLassoCV",
+        "cov_LedoitWolf",
+        "cov_MinCovDet",
+        "cov_OAS",
+        "cov_ShrunkCovariance",
+        "dspli_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00195",
+        "dspli_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0342",
+        "dspli_multitaper_mean_fs-1_fmin-0-000488_fmax-0-122",
+        "dspli_multitaper_mean_fs-1_fmin-0-00195_fmax-0-00391",
+        "dspli_multitaper_mean_fs-1_fmin-0-00391_fmax-0-00586",
+        "dspli_multitaper_mean_fs-1_fmin-0-00586_fmax-0-0146",
+        "dspli_multitaper_mean_fs-1_fmin-0-0146_fmax-0-0342",
+        "dspli_multitaper_mean_fs-1_fmin-0-0342_fmax-0-0732",
+        "dspli_multitaper_mean_fs-1_fmin-0-0342_fmax-0-122",
+        "dspli_multitaper_mean_fs-1_fmin-0-0732_fmax-0-122",
+        "dspli_multitaper_mean_fs-1_fmin-0_fmax-0-5",
+        "dswpli_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00195",
+        "dswpli_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0342",
+        "dswpli_multitaper_mean_fs-1_fmin-0-000488_fmax-0-122",
+        "dswpli_multitaper_mean_fs-1_fmin-0-00195_fmax-0-00391",
+        "dswpli_multitaper_mean_fs-1_fmin-0-00391_fmax-0-00586",
+        "dswpli_multitaper_mean_fs-1_fmin-0-00586_fmax-0-0146",
+        "dswpli_multitaper_mean_fs-1_fmin-0-0146_fmax-0-0342",
+        "dswpli_multitaper_mean_fs-1_fmin-0-0342_fmax-0-0732",
+        "dswpli_multitaper_mean_fs-1_fmin-0-0342_fmax-0-122",
+        "dswpli_multitaper_mean_fs-1_fmin-0-0732_fmax-0-122",
+        "dswpli_multitaper_mean_fs-1_fmin-0_fmax-0-5",
+        "je_gaussian",
+        "kendalltau-sq",
+        "mi_gaussian",
+        "pdist_braycurtis",
+        "pdist_canberra",
+        "pdist_chebyshev",
+        "pdist_cityblock",
+        "pdist_cosine",
+        "pdist_euclidean",
+        "pec",
+        "pec_log",
+        "pec_orth",
+        "pec_orth_abs",
+        "pec_orth_log",
+        "pec_orth_log_abs",
+        "ppc_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00195",
+        "ppc_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0342",
+        "ppc_multitaper_mean_fs-1_fmin-0-000488_fmax-0-122",
+        "ppc_multitaper_mean_fs-1_fmin-0-00195_fmax-0-00391",
+        "ppc_multitaper_mean_fs-1_fmin-0-00391_fmax-0-00586",
+        "ppc_multitaper_mean_fs-1_fmin-0-00586_fmax-0-0146",
+        "ppc_multitaper_mean_fs-1_fmin-0-0146_fmax-0-0342",
+        "ppc_multitaper_mean_fs-1_fmin-0-0342_fmax-0-0732",
+        "ppc_multitaper_mean_fs-1_fmin-0-0342_fmax-0-122",
+        "ppc_multitaper_mean_fs-1_fmin-0-0732_fmax-0-122",
+        "ppc_multitaper_mean_fs-1_fmin-0_fmax-0-5",
+        "prec-sq_GraphicalLasso",
+        "prec-sq_GraphicalLassoCV",
+        "prec-sq_LedoitWolf",
+        "prec-sq_OAS",
+        "prec-sq_ShrunkCovariance",
+        "prec_GraphicalLasso",
+        "prec_GraphicalLassoCV",
+        "prec_LedoitWolf",
+        "prec_OAS",
+        "prec_ShrunkCovariance",
+        "spearmanr",
+        "spearmanr-sq",
+        "xcorr-sq_max_sig-False",
+        "xcorr-sq_mean_sig-False",
+        "xcorr_max_sig-False",
+        "xcorr_mean_sig-False",
+    ]
     
-    # Process calculations
-    results = process_calculations(new_df, base, subdirs)
-    
-    # Merge results
-    merged_df = merge_results(results)
-    CSV.write("predict_df_4NetMets_20250319.csv",merged_df)
+    for sub in subdirs
+        # Process calculations
+        try
+            # if csv exists, skip
+            if isfile("NETWORKSTATS~$(sub).csv")
+                continue
+            end
+            results = process_calculations(new_df, base, [sub])
+            
+            # Merge results
+            merged_df = merge_results(results)
+            CSV.write("NETWORKSTATS~$(sub).csv", merged_df)
+        catch e
+            println("Error processing $sub: $e")
+        end
+    end
 
     # return merged_df
 end
 
 # Run the code
-merged_df = main()
+main()

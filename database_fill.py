@@ -265,9 +265,34 @@ def update_recordings(baseline_data):
 # Update recordings table with baseline data
 update_recordings(baseline_data)
 
+
+# load electrode file to fill electrodes table
+# -- 3. Electrodes table: static contact metadata
+# CREATE TABLE electrodes (
+#     electrode_id SERIAL PRIMARY KEY,
+#     patient_id INT NOT NULL REFERENCES patients(patient_id),
+#     electrode_idx INT NOT NULL, 
+#     ascii_name TEXT NOT NULL, 
+#     x real NOT NULL,
+#     y real NOT NULL,
+#     z real NOT NULL,
+#     hemisphere VARCHAR(10), 
+#     noise_designation VARCHAR(10), 
+#     soz_label BOOLEAN, 
+#     UNIQUE (patient_id, electrode_idx)
+# );
+
+# electrode file has the following columns:
+# 'electrode', 'x', 'y', 'z', 'aal', 'aal2', 'brainnetome',
+#        'harvard-oxford', 'miccai', 'ns_language', 'ns_oral', 'pid',
+#        'age_days_at_recording', 'age_years_at_recording', 'seizureFree',
+#        'white_matter', 'soz', 'in_xyz_file', 'in_edf_file', 'harvard oxford',
+#        'oral'
+path = "/media/dan/Data/data/FULL_composite_patient_info.csv"
+df = pd.read_csv(path)
+
+
 print(df)
-
-
 
 
 
