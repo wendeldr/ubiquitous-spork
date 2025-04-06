@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Histogram Sorter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="progress">
+        <div class="progress-item">Current: <span id="current">0</span></div>
+        <div class="progress-item">Reviewed: <span id="reviewed">0</span></div>
+        <div class="progress-item">Remaining: <span id="remaining">0</span></div>
+        <div class="progress-item">Total: <span id="total">0</span></div>
+    </div>
+    <div class="image-container">
+        <img id="current-image" src="" alt="Current image">
+        <div id="completion-message" class="completion-message">All images have been reviewed!</div>
+    </div>
+    <div class="controls" id="main-controls">
+        <button onclick="review('0')">[0] Skip</button>
+        <button onclick="review('1')">[1] True Significant</button>
+        <button onclick="review('2')">[2] Not Significant</button>
+        <button onclick="review('3')">[3] False Significant</button>
+        <button onclick="review('4')">[4] Unknown</button>
+        <button onclick="review('5')">[5] Re-review</button>
+    </div>
+    <div class="sub-category" id="sub-category">
+        <button onclick="submitWithSubCategory('1')">[1] Left skew/significant</button>
+        <button onclick="submitWithSubCategory('2')">[2] Other</button>
+        <button onclick="submitWithSubCategory('3')">[3] Right skew/significant</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

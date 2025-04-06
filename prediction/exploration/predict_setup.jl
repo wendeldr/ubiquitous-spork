@@ -46,7 +46,9 @@ function process_calculations(new_df, base, subdirs)
             pid = parse(Int, parts[2])
             time = parse(Int, parts[3])
             
-            pid == 111 && continue
+            if pid == 111
+                continue
+            end
             push!(all_files, joinpath(calcs_path, f))
             # if z > 3
             #     break
@@ -55,70 +57,81 @@ function process_calculations(new_df, base, subdirs)
     end
     
     results = []
-    # @showprogress desc="Processing files..." Threads.@threads for i in 1:length(all_files)
-    @showprogress desc="Processing files..." Threads.@threads for i in eachindex(all_files)
-        f = all_files[i]
-        # println(f)
+    # all_files = reverse(all_files)
+    # @showprogress desc="Processing files" Threads.@threads for i in 1:length(all_files)
+    @showprogress desc="Processing files" Threads.@threads for i in eachindex(all_files)
+        try
+            f = all_files[i]
+            # println(f)
 
-        # Load MATLAB file
-        parts = split(basename(f), '~')
-        sub = parts[1]
-        pid = parse(Int, parts[2])
-        time = parse(Int, parts[3])
-        
-        pid == 111 && continue
-        
-        mat_file = matread(f)
-        out = mat_file["out"]
-        
-        # Parse features into a dictionary
-        electrodes = Dict{Int, Dict{String, Any}}()
-        singular_values = Dict{String, Any}()
-        
-        for key in keys(out)
-            key == "timing" && continue
+            # Load MATLAB file
+            parts = split(basename(f), '~')
+            sub = parts[1]
+            pid = parse(Int, parts[2])
+            time = parse(Int, parts[3])
             
-            for subkey in keys(out[key])
-                feature_name = "$(sub)~$(key)~$(subkey)"
+            if pid == 111
+                continue
+            end
+
+            mat_file = matread(f)
+            out = mat_file["out"]
+            
+            # Parse features into a dictionary
+            electrodes = Dict{Int, Dict{String, Any}}()
+            singular_values = Dict{String, Any}()
+            
+            for key in keys(out)
+                if key == "timing"
+                    continue
+                end
                 
-                if isa(out[key][subkey], Array)
-                    for (i, val) in enumerate(out[key][subkey])
-                        if !haskey(electrodes, i-1)  # 0-based indexing
-                            electrodes[i-1] = Dict{String, Any}()
+                for subkey in keys(out[key])
+                    feature_name = "$(sub)~$(key)~$(subkey)"
+                    
+                    if isa(out[key][subkey], Array)
+                        for (i, val) in enumerate(out[key][subkey])
+                            if !haskey(electrodes, i-1)  # 0-based indexing
+                                electrodes[i-1] = Dict{String, Any}()
+                            end
+                            electrodes[i-1][feature_name] = val
                         end
-                        electrodes[i-1][feature_name] = val
+                    else
+                        singular_values[feature_name] = out[key][subkey]
                     end
-                else
-                    singular_values[feature_name] = out[key][subkey]
                 end
             end
-        end
-        
-        # Create dataframe rows
-        for x in keys(electrodes)
-            # Add singular values
-            merge!(electrodes[x], singular_values)
             
-            # Find matching metadata
-            filtered = filter(row -> row.pid == pid && row.electrode_idx == x, new_df)
-            isempty(filtered) && continue
+            # Create dataframe rows
+            for x in keys(electrodes)
+                # Add singular values
+                merge!(electrodes[x], singular_values)
+                
+                # Find matching metadata
+                filtered = filter(row -> row.pid == pid && row.electrode_idx == x, new_df)
+                isempty(filtered) && continue
+                
+                # Add location and SOZ info
+                row = first(filtered)
+                electrodes[x]["x"] = row.x
+                electrodes[x]["y"] = row.y
+                electrodes[x]["z"] = row.z
+                electrodes[x]["soz"] = row.soz
+                electrodes[x]["pid"] = pid
+                electrodes[x]["time"] = time
+                electrodes[x]["electrode_idx"] = x
+            end
             
-            # Add location and SOZ info
-            row = first(filtered)
-            electrodes[x]["x"] = row.x
-            electrodes[x]["y"] = row.y
-            electrodes[x]["z"] = row.z
-            electrodes[x]["soz"] = row.soz
-            electrodes[x]["pid"] = pid
-            electrodes[x]["time"] = time
-            electrodes[x]["electrode_idx"] = x
-        end
-        
-        # Convert to DataFrame
-        if !isempty(electrodes)
-            rows = [values for (idx, values) in electrodes]
-            df = DataFrame(rows)
-            push!(results, df)
+            # Convert to DataFrame
+            if !isempty(electrodes)
+                rows = [values for (idx, values) in electrodes]
+                df = DataFrame(rows)
+                push!(results, df)
+            end
+
+        catch e
+            println("Error processing $f at $i: $e")
+            break
         end
     end
     
@@ -199,12 +212,7 @@ function main()
     
     # Define base path and subdirectories
     base = "/media/dan/Data/data/connectivity/downloads-dump/BCT/outputs"
-
-    # subdirs = ["cohmag_multitaper_mean_fs-1_fmin-0_fmax-0-5",
-    # "cov_EmpiricalCovariance",
-    # "pdist_cosine",
-    # "mi_gaussian"]
-
+   
     subdirs = [
         "bary-sq_euclidean_max",
         "bary-sq_euclidean_mean",
@@ -299,7 +307,8 @@ function main()
         "xcorr_mean_sig-False",
     ]
     
-    for sub in subdirs
+    @showprogress desc="Subdirectories" for sub in subdirs
+        println("Processing $sub")
         # Process calculations
         try
             # if csv exists, skip
