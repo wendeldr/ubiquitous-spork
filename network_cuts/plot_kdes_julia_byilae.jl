@@ -11,10 +11,7 @@ const path = "/media/dan/Data/outputs/ubiquitous-spork/pyspi_combined_patient_hd
 # --- Function Definition (Translated from Python) ---
 """
 Extracts connections from the upper triangle of adjacency matrices based on SOZ mask classes.
-Returns three arrays containing the connection values for:
-1. Non-EZ to Non-EZ connections (mask value 0)
-2. Non-EZ to EZ connections (mask value 1)
-3. EZ to EZ connections (mask value 2)
+... (full docstring from above) ...
 """
 function extract_class_connections(
     adjacency_matrices::AbstractArray{T, 3},
@@ -200,11 +197,11 @@ println("\nProcessing metrics...")
             # Create plot
             plot(non, hist=false, color=RGBA(0,0,0,.6), label="Non-EZ", 
                  xlabel="Value", ylabel="Density", 
-                 title="$metric (ILAE $ilae_score)", legend=false, dpi=300)
+                 title="$metric (ILAE $ilae_score)", legend=false, dpi=300,lw=1)
             plot!(mix, hist=false, color=RGBA(26/255,133/255,255/255,.6), 
-                  label="Non->EZ", legend=false, dpi=300)
+                  label="Non->EZ", legend=false, dpi=300,lw=1)
             plot!(soz, hist=false, color=RGBA(212/255,17/255,89/255,.6), 
-                  label="EZ", legend=false, dpi=300)
+                  label="EZ", legend=false, dpi=300,lw=1)
 
             output_path = "/media/dan/Data/git/ubiquitous-spork/plots_for_seminar/by_ilae/all"
             savefig(joinpath(output_path, "$metric~$ilae_score~full.png"))

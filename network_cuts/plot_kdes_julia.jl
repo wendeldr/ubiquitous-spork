@@ -8,51 +8,43 @@ using AverageShiftedHistograms
 # --- Define the path ---
 const path = "/media/dan/Data/outputs/ubiquitous-spork/pyspi_combined_patient_hdf5s"
 
-# --- Function Definition (Translated from Python) ---
-"""
-Extracts connections from the upper triangle of adjacency matrices based on SOZ mask classes.
-... (full docstring from above) ...
-"""
+
 function extract_class_connections(
     adjacency_matrices::AbstractArray{T, 3},
     soz::AbstractVector{S}
     ) where {T<:Real, S<:Union{Bool, Integer}}
 
     n = size(adjacency_matrices, 2)
-    num_time_steps = size(adjacency_matrices, 1) # for some reason julia reads the first dimension as the number of time steps
+    num_time_steps = size(adjacency_matrices, 1)
 
     if length(soz) != n
         error("Dimension mismatch: length of soz ($(length(soz))) does not match adjacency matrix dimension ($n)")
     end
-    if n <= 1
-        # Handle edge case where no upper triangle exists
-        return T[], T[], T[]
+
+    # Initialize arrays to store the connections
+    non_connections = T[]
+    mix_connections = T[]
+    soz_connections = T[]
+
+    # Loop through each time step
+    for t in 1:num_time_steps
+        # Loop through upper triangle of the adjacency matrix
+        for i in 1:n
+            for j in (i+1):n
+                # Get the connection value
+                value = adjacency_matrices[t, i, j]
+                
+                # Determine the connection type based on SOZ values
+                if soz[i] == 0 && soz[j] == 0
+                    push!(non_connections, value)
+                elseif (soz[i] == 1 && soz[j] == 0) || (soz[i] == 0 && soz[j] == 1)
+                    push!(mix_connections, value)
+                elseif soz[i] == 1 && soz[j] == 1
+                    push!(soz_connections, value)
+                end
+            end
+        end
     end
-
-
-    mask = soz' .+ soz
-
-    cartesian_indices = CartesianIndices((1:n, 1:n))
-    upper_tri_cartesian = filter(ci -> ci[1] < ci[2], vec(cartesian_indices))
-
-    if isempty(upper_tri_cartesian) # Handle case n=0 or n=1 after filtering
-         return T[], T[], T[]
-    end
-
-    mask_values = mask[upper_tri_cartesian]
-
-    linear_indices_2d = map(ci -> LinearIndices((n, n))[ci], upper_tri_cartesian)
-    adj_reshaped = reshape(adjacency_matrices, n*n, num_time_steps)
-    connections = adj_reshaped[linear_indices_2d, :]
-
-    # Handle cases where some classes might be empty
-    non_indices = findall(==(0), mask_values)
-    mix_indices = findall(==(1), mask_values)
-    soz_indices = findall(==(2), mask_values)
-
-    non_connections = isempty(non_indices) ? T[] : vec(connections[non_indices, :])
-    mix_connections = isempty(mix_indices) ? T[] : vec(connections[mix_indices, :])
-    soz_connections = isempty(soz_indices) ? T[] : vec(connections[soz_indices, :])
 
     return non_connections, mix_connections, soz_connections
 end
@@ -212,9 +204,9 @@ println("\nProcessing metrics...")
         mix = ash(mix_nums)
         non = ash(non_nums)
 
-        plot(non, hist=false, color=RGBA(0,0,0,.6), label="Non-EZ", xlabel="Value", ylabel="Density", title="$metric", legend=false,dpi=300)
-        plot!(mix, hist=false, color=RGBA(26/255,133/255,255/255,.6), label="Non->EZ", legend=false,dpi=300)
-        plot!(soz, hist=false, color=RGBA(212/255,17/255,89/255,.6), label="EZ", legend=false,dpi=300)
+        plot(non, hist=false, color=RGBA(0,0,0,.6), label="Non-EZ", xlabel="Value", ylabel="Density", title="$metric", legend=false,dpi=300,lw=1)
+        plot!(mix, hist=false, color=RGBA(26/255,133/255,255/255,.6), label="Non->EZ", legend=false,dpi=300,lw=1)
+        plot!(soz, hist=false, color=RGBA(212/255,17/255,89/255,.6), label="EZ", legend=false,dpi=300,lw=1)
 
         output_path = "/media/dan/Data/git/ubiquitous-spork/plots_for_seminar/all_columns"
         savefig(joinpath(output_path, "$metric~full.png"))
