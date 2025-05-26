@@ -355,7 +355,12 @@ for row in eachrow(seizure_free)
 end
 
 
+# print all unique metrics
+tmp = patient_metrics["001"][2]
 
+for metric in tmp
+    println("$metric")
+end
 
 # # make hdf5s for each pid and fill with metadata.
 # # currently only metadata is size of full set.
