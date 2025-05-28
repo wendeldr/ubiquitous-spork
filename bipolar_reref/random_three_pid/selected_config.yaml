@@ -13,23 +13,23 @@
       - estimator: EmpiricalCovariance
       # - estimator: EllipticEnvelope
       # - estimator: GraphicalLasso
-      - estimator: GraphicalLassoCV
+      #- estimator: GraphicalLassoCV
       - estimator: LedoitWolf
-      - estimator: MinCovDet
+#      - estimator: MinCovDet
       - estimator: OAS
       - estimator: ShrunkCovariance
       - estimator: EmpiricalCovariance
         squared: True
       # - estimator: EllipticEnvelope
         # squared: True
-      - estimator: GraphicalLasso
-        squared: True
-      - estimator: GraphicalLassoCV
-        squared: True
+#      - estimator: GraphicalLasso
+#        squared: True
+#      - estimator: GraphicalLassoCV
+#        squared: True
       - estimator: LedoitWolf
         squared: True
-      - estimator: MinCovDet
-        squared: True
+#      - estimator: MinCovDet
+#        squared: True
       - estimator: OAS
         squared: True
       - estimator: ShrunkCovariance
@@ -46,25 +46,25 @@
     dependencies:
     configs:
       - estimator: EmpiricalCovariance
-      - estimator: EllipticEnvelope
-      - estimator: GraphicalLasso
-      - estimator: GraphicalLassoCV
+#      - estimator: EllipticEnvelope
+#      - estimator: GraphicalLasso
+#      - estimator: GraphicalLassoCV
       - estimator: LedoitWolf
-      - estimator: MinCovDet
+#      - estimator: MinCovDet
       - estimator: OAS
       - estimator: ShrunkCovariance
       - estimator: EmpiricalCovariance
         squared: True
-      - estimator: EllipticEnvelope
-        squared: True
-      - estimator: GraphicalLasso
-        squared: True
-      - estimator: GraphicalLassoCV
-        squared: True
+#      - estimator: EllipticEnvelope
+#        squared: True
+#      - estimator: GraphicalLasso
+#        squared: True
+#      - estimator: GraphicalLassoCV
+#        squared: True
       - estimator: LedoitWolf
         squared: True
-      - estimator: MinCovDet
-        squared: True
+#      - estimator: MinCovDet
+#        squared: True
       - estimator: OAS
         squared: True
       - estimator: ShrunkCovariance
@@ -697,62 +697,108 @@
         fmax: 0.1220703125
 
   # CoherenceMagnitude (cohmag)
-  # CoherenceMagnitude:
-  #   labels:
-  #     - undirected
-  #     - linear
-  #     - unsigned
-  #     - bivariate
-  #     - frequency-dependent
-  #   dependencies:
-  #   configs:
-  #     - fs: 1
+  CoherenceMagnitude:
+    labels:
+      - undirected
+      - linear
+      - unsigned
+      - bivariate
+      - frequency-dependent
+    dependencies:
+    configs:
+      - fs: 1
 
-  #     - fmin: 0
-  #       fmax: 0.25
+      # delta
+      - fmin: 0.00048828125
+        fmax: 0.001953125
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
+      # Theta
+      - fmin: 0.001953125
+        fmax: 0.00390625
 
-  #     - fs: 1
-  #       statistic: max
+      # Alpha
+      - fmin: 0.00390625
+        fmax: 0.005859375
 
-  #     - fmin: 0
-  #       fmax: 0.25
-  #       statistic: max
+      # Beta
+      - fmin: 0.005859375
+        fmax: 0.0146484375
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
-  #       statistic: max
+      # Low Gamma
+      - fmin: 0.0146484375
+        fmax: 0.0341796875
+
+      # High Gamma
+      - fmin: 0.0341796875
+        fmax: 0.0732421875
+
+       # Ultra High Gamma
+      - fmin: 0.0732421875
+        fmax: 0.1220703125
+
+      # lowband
+      - fmin: 0.00048828125
+        fmax: 0.0341796875
+
+      # highband
+      - fmin: 0.0341796875
+        fmax: 0.1220703125
+
+      # Full Band (sans dc and up to ~noise)
+      - fmin: 0.00048828125
+        fmax: 0.1220703125
 
   # Coherence (ordinal or squared? imaginary components of the coherence)
-  # ImaginaryCoherence:
-  #   labels:
-  #     - undirected
-  #     - linear
-  #     - unsigned
-  #     - bivariate
-  #     - frequency-dependent
-  #   dependencies:
-  #   configs:
-  #     - fs: 1
+  ImaginaryCoherence:
+    labels:
+      - undirected
+      - linear
+      - unsigned
+      - bivariate
+      - frequency-dependent
+    dependencies:
+    configs:
+      - fs: 1
 
-  #     - fmin: 0
-  #       fmax: 0.25
+      # delta
+      - fmin: 0.00048828125
+        fmax: 0.001953125
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
+      # Theta
+      - fmin: 0.001953125
+        fmax: 0.00390625
 
-  #     - fs: 1
-  #       statistic: max
+      # Alpha
+      - fmin: 0.00390625
+        fmax: 0.005859375
 
-  #     - fmin: 0
-  #       fmax: 0.25
-  #       statistic: max
+      # Beta
+      - fmin: 0.005859375
+        fmax: 0.0146484375
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
-  #       statistic: max
+      # Low Gamma
+      - fmin: 0.0146484375
+        fmax: 0.0341796875
+
+      # High Gamma
+      - fmin: 0.0341796875
+        fmax: 0.0732421875
+
+       # Ultra High Gamma
+      - fmin: 0.0732421875
+        fmax: 0.1220703125
+
+      # lowband
+      - fmin: 0.00048828125
+        fmax: 0.0341796875
+
+      # highband
+      - fmin: 0.0341796875
+        fmax: 0.1220703125
+
+      # Full Band (sans dc and up to ~noise)
+      - fmin: 0.00048828125
+        fmax: 0.1220703125
 
   # PhaseSlopeIndex (psi)
   PhaseSlopeIndex:
@@ -807,62 +853,108 @@
         fmax: 0.1220703125
 
   # PhaseLockingValue (plv)
-  # PhaseLockingValue:
-  #   labels:
-  #     - undirected
-  #     - linear
-  #     - unsigned
-  #     - bivariate
-  #     - frequency-dependent
-  #   dependencies:
-  #   configs:
-  #     - fs: 1
+  PhaseLockingValue:
+    labels:
+      - undirected
+      - linear
+      - unsigned
+      - bivariate
+      - frequency-dependent
+    dependencies:
+    configs:
+      - fs: 1
 
-  #     - fmin: 0
-  #       fmax: 0.25
+      # delta
+      - fmin: 0.00048828125
+        fmax: 0.001953125
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
+      # Theta
+      - fmin: 0.001953125
+        fmax: 0.00390625
 
-  #     - fs: 1
-  #       statistic: max
+      # Alpha
+      - fmin: 0.00390625
+        fmax: 0.005859375
 
-  #     - fmin: 0
-  #       fmax: 0.25
-  #       statistic: max
+      # Beta
+      - fmin: 0.005859375
+        fmax: 0.0146484375
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
-  #       statistic: max
+      # Low Gamma
+      - fmin: 0.0146484375
+        fmax: 0.0341796875
+
+      # High Gamma
+      - fmin: 0.0341796875
+        fmax: 0.0732421875
+
+       # Ultra High Gamma
+      - fmin: 0.0732421875
+        fmax: 0.1220703125
+
+      # lowband
+      - fmin: 0.00048828125
+        fmax: 0.0341796875
+
+      # highband
+      - fmin: 0.0341796875
+        fmax: 0.1220703125
+
+      # Full Band (sans dc and up to ~noise)
+      - fmin: 0.00048828125
+        fmax: 0.1220703125
 
   # PhaseLagIndex (pli)
-  # PhaseLagIndex:
-  #   labels:
-  #     - undirected
-  #     - linear
-  #     - unsigned
-  #     - bivariate
-  #     - frequency-dependent
-  #   dependencies:
-  #   configs:
-  #     - fs: 1
+  PhaseLagIndex:
+    labels:
+      - undirected
+      - linear
+      - unsigned
+      - bivariate
+      - frequency-dependent
+    dependencies:
+    configs:
+      - fs: 1
 
-  #     - fmin: 0
-  #       fmax: 0.25
+      # delta
+      - fmin: 0.00048828125
+        fmax: 0.001953125
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
+      # Theta
+      - fmin: 0.001953125
+        fmax: 0.00390625
 
-  #     - fs: 1
-  #       statistic: max
+      # Alpha
+      - fmin: 0.00390625
+        fmax: 0.005859375
 
-  #     - fmin: 0
-  #       fmax: 0.25
-  #       statistic: max
+      # Beta
+      - fmin: 0.005859375
+        fmax: 0.0146484375
 
-  #     - fmin: 0.25
-  #       fmax: 0.5
-  #       statistic: max
+      # Low Gamma
+      - fmin: 0.0146484375
+        fmax: 0.0341796875
+
+      # High Gamma
+      - fmin: 0.0341796875
+        fmax: 0.0732421875
+
+       # Ultra High Gamma
+      - fmin: 0.0732421875
+        fmax: 0.1220703125
+
+      # lowband
+      - fmin: 0.00048828125
+        fmax: 0.0341796875
+
+      # highband
+      - fmin: 0.0341796875
+        fmax: 0.1220703125
+
+      # Full Band (sans dc and up to ~noise)
+      - fmin: 0.00048828125
+        fmax: 0.1220703125
 
   # WeightedPhaseLagIndex (wpli)
   WeightedPhaseLagIndex:
