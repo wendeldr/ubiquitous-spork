@@ -26,6 +26,51 @@ import h5py
 
 
 full_renames = dict({
+    'bary_euclidean_max': 'bary_euclidean_max',
+    'bary_euclidean_mean': 'bary_euclidean_mean',
+    'ce_gaussian': 'ce_gaussian',
+    'cov_EmpiricalCovariance': 'cov_EmpiricalCovariance',
+    'cov_GraphicalLassoCV': 'cov_GraphicalLassoCV',
+    'cov_LedoitWolf': 'cov_LedoitWolf',
+    'cov_MinCovDet': 'cov_MinCovDet',
+    'cov_OAS': 'cov_OAS',
+    'cov_ShrunkCovariance': 'cov_ShrunkCovariance',
+    'cov_sq-EmpiricalCovariance': 'cov_sq-EmpiricalCovariance',
+    'je_gaussian': 'je_gaussian',
+    'lmfit_BayesianRidge': 'lmfit_BayesianRidge',
+    'lmfit_ElasticNet': 'lmfit_ElasticNet',
+    'lmfit_Lasso': 'lmfit_Lasso',
+    'lmfit_Ridge': 'lmfit_Ridge',
+    'lmfit_SGDRegressor': 'lmfit_SGDRegressor',
+    'mi_gaussian': 'mi_gaussian',
+    'pdist_braycurtis': 'pdist_braycurtis',
+    'pdist_canberra': 'pdist_canberra',
+    'pdist_chebyshev': 'pdist_chebyshev',
+    'pdist_cityblock': 'pdist_cityblock',
+    'pdist_cosine': 'pdist_cosine',
+    'pdist_euclidean': 'pdist_euclidean',
+    'pec': 'pec',
+    'pec_log': 'pec_log',
+    'pec_orth': 'pec_orth',
+    'pec_orth_abs': 'pec_orth_abs',
+    'pec_orth_log': 'pec_orth_log',
+    'pec_orth_log_abs': 'pec_orth_log_abs',
+    'prec_EllipticEnvelope': 'prec_EllipticEnvelope',
+    'prec_EmpiricalCovariance': 'prec_EmpiricalCovariance',
+    'prec_GraphicalLasso': 'prec_GraphicalLasso',
+    'prec_GraphicalLassoCV': 'prec_GraphicalLassoCV',
+    'prec_LedoitWolf': 'prec_LedoitWolf',
+    'prec_MinCovDet': 'prec_MinCovDet',
+    'prec_OAS': 'prec_OAS',
+    'prec_ShrunkCovariance': 'prec_ShrunkCovariance',
+    'reci': 'reci',
+    'spearmanr': 'spearmanr',
+    'tlmi_gaussian': 'tlmi_gaussian',
+
+    'gc_gaussian_k-1_kt-1_l-1_lt-1': 'gc_gaussian_k-1_kt-1_l-1_lt-1',
+    'te_symbolic_k-1_kt-1_l-1_lt-1': 'te_symbolic_k-1_kt-1_l-1_lt-1',
+    'te_symbolic_k-10_kt-1_l-1_lt-1': 'te_symbolic_k-10_kt-1_l-1_lt-1',
+
 'cov-sq_EmpiricalCovariance': "cov_sq-EmpiricalCovariance",
 'cov-sq_GraphicalLasso': "cov_sq-GraphicalLasso",
 'cov-sq_GraphicalLassoCV': "cov_sq-GraphicalLassoCV",
@@ -50,8 +95,8 @@ full_renames = dict({
 "bary-sq_euclidean_mean": "bary_sq-euclidean_mean",
 "bary-sq_euclidean_max": "bary_sq-euclidean_max",
 "cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00195": "CohMag_1-4",
-"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00342": "CohMag_1-70",
-"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0122": "CohMag_1-250",
+"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0342": "CohMag_1-70",
+"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-122": "CohMag_1-250",
 "cohmag_multitaper_mean_fs-1_fmin-0-00195_fmax-0-00391": "CohMag_4-8",
 "cohmag_multitaper_mean_fs-1_fmin-0-00391_fmax-0-00586": "CohMag_8-13",
 "cohmag_multitaper_mean_fs-1_fmin-0-00586_fmax-0-0146": "CohMag_13-30",
@@ -203,8 +248,7 @@ def check_and_rename_key(key: str, full_renames: dict) -> str:
     Raises KeyError if the key is missing.
     """
     if key not in full_renames:
-        raise KeyError(f"Key '{key}' not found in full_renames dictionary. "
-                      f"Available keys: {list(full_renames.keys())}")
+        raise KeyError(f"Key '{key}' not found in full_renames dictionary. ")
     return full_renames[key]
 
 def create_dataset_like(out_group: h5py.Group, name: str, data, src_dset: h5py.Dataset):
