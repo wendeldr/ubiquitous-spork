@@ -50,8 +50,8 @@ full_renames = dict({
 "bary-sq_euclidean_mean": "bary_sq-euclidean_mean",
 "bary-sq_euclidean_max": "bary_sq-euclidean_max",
 "cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00195": "CohMag_1-4",
-"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0342": "CohMag_1-70",
-"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-122": "CohMag_1-250",
+"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-00342": "CohMag_1-70",
+"cohmag_multitaper_mean_fs-1_fmin-0-000488_fmax-0-0122": "CohMag_1-250",
 "cohmag_multitaper_mean_fs-1_fmin-0-00195_fmax-0-00391": "CohMag_4-8",
 "cohmag_multitaper_mean_fs-1_fmin-0-00391_fmax-0-00586": "CohMag_8-13",
 "cohmag_multitaper_mean_fs-1_fmin-0-00586_fmax-0-0146": "CohMag_13-30",
@@ -197,6 +197,16 @@ def should_transform(dataset: h5py.Dataset, adj_root: str) -> bool:
     path = dataset.name.lstrip("/")
     return path == adj_root or path.startswith(adj_root + "/")
 
+def check_and_rename_key(key: str, full_renames: dict) -> str:
+    """
+    Check if a key exists in full_renames and return the renamed version.
+    Raises KeyError if the key is missing.
+    """
+    if key not in full_renames:
+        raise KeyError(f"Key '{key}' not found in full_renames dictionary. "
+                      f"Available keys: {list(full_renames.keys())}")
+    return full_renames[key]
+
 def create_dataset_like(out_group: h5py.Group, name: str, data, src_dset: h5py.Dataset):
     # We try to preserve common filters when feasible.
     # If compression was used, keep it; h5py will adapt to new shape.
@@ -220,7 +230,7 @@ def create_dataset_like(out_group: h5py.Group, name: str, data, src_dset: h5py.D
     copy_attrs(src_dset, out_dset)
     return out_dset
 
-def recursive_copy(in_group: h5py.Group, out_group: h5py.Group, adj_root: str, dry_run: bool):
+def recursive_copy(in_group: h5py.Group, out_group: h5py.Group, adj_root: str, dry_run: bool, full_renames: dict):
     # Copy group attributes
     copy_attrs(in_group, out_group)
 
@@ -228,16 +238,23 @@ def recursive_copy(in_group: h5py.Group, out_group: h5py.Group, adj_root: str, d
         if isinstance(item, h5py.Group):
             new_group = out_group.create_group(name) if not dry_run else out_group.require_group(name)
             copy_attrs(item, new_group)
-            recursive_copy(item, new_group, adj_root, dry_run)
+            recursive_copy(item, new_group, adj_root, dry_run, full_renames)
         elif isinstance(item, h5py.Dataset):
             full_path = item.name
             if should_transform(item, adj_root) and item.ndim == 3:
-                print(f"  [transform] {full_path}: 3D -> nanmean(axis=-1)")
-                if not dry_run:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore", category=RuntimeWarning)
-                        data = np.nanmean(item[()], axis=-1)
-                    create_dataset_like(out_group, name, data, item)
+                # Check if the key exists in full_renames and get the renamed version
+                try:
+                    renamed_name = check_and_rename_key(name, full_renames)
+                    print(f"  [transform] {full_path}: 3D -> nanmean(axis=-1) (renamed: {name} -> {renamed_name})")
+                    if not dry_run:
+                        with warnings.catch_warnings():
+                            warnings.simplefilter("ignore", category=RuntimeWarning)
+                            data = np.nanmean(item[()], axis=-1)
+                        create_dataset_like(out_group, renamed_name, data, item)
+                except KeyError as e:
+                    print(f"  [ERROR] {full_path}: {e}", file=sys.stderr)
+                    if not dry_run:
+                        raise  # Re-raise the error to stop processing
             else:
                 action = "copy"
                 if should_transform(item, adj_root) and item.ndim != 3:
@@ -250,7 +267,7 @@ def recursive_copy(in_group: h5py.Group, out_group: h5py.Group, adj_root: str, d
         else:
             print(f"  [skip] {item.name}: unsupported object type {type(item)}")
 
-def process_file(src_path: Path, dst_path: Path, adj_root: str, dry_run: bool):
+def process_file(src_path: Path, dst_path: Path, adj_root: str, dry_run: bool, full_renames: dict):
     print(f"\nProcessing: {src_path}")
     if not dry_run:
         # Ensure parent directories exist
@@ -270,13 +287,13 @@ def process_file(src_path: Path, dst_path: Path, adj_root: str, dry_run: bool):
                 def __exit__(self, *a): return False
                 def attrs(self): return {}
             dummy = DummyOut()
-            recursive_copy(fin, dummy, adj_root, dry_run=True)
+            recursive_copy(fin, dummy, adj_root, dry_run=True, full_renames=full_renames)
         else:
             with h5py.File(dst_path, "w") as fout:
                 # Copy root attrs
                 copy_attrs(fin, fout)
                 # Recreate full tree
-                recursive_copy(fin, fout, adj_root, dry_run=False)
+                recursive_copy(fin, fout, adj_root, dry_run=False, full_renames=full_renames)
 
 def main():
     args = parse_args()
@@ -303,7 +320,7 @@ def main():
     for src in files:
         rel = src.relative_to(in_dir)
         dst = out_dir / rel
-        process_file(src, dst, adj_root=adj_root, dry_run=args.dry_run)
+        process_file(src, dst, adj_root=adj_root, dry_run=args.dry_run, full_renames=full_renames)
 
     print("\nDone.")
 
